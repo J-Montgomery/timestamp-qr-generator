@@ -1,4 +1,4 @@
-const CACHE_NAME = 'offline';
+const CACHE_NAME = 'timestamp-qr-cache';
 const OFFLINE_URL = 'index.html';
 
 self.addEventListener('install', function(event) {
@@ -33,6 +33,13 @@ self.addEventListener('fetch', function(event) {
   if (event.request.mode === 'navigate') {
     event.respondWith((async () => {
       try {
+        console.log('[Service Worker] returning offline page first.', error);
+
+        const cache = await caches.open(CACHE_NAME);
+        const cachedResponse = await cache.match(OFFLINE_URL);
+        return cachedResponse;
+      } catch (error) {
+        console.log('[Service Worker] cache empty, attempting to load from network', error);
         const preloadResponse = await event.preloadResponse;
         if (preloadResponse) {
           return preloadResponse;
@@ -40,12 +47,6 @@ self.addEventListener('fetch', function(event) {
 
         const networkResponse = await fetch(event.request);
         return networkResponse;
-      } catch (error) {
-        console.log('[Service Worker] Fetch failed; returning offline page instead.', error);
-
-        const cache = await caches.open(CACHE_NAME);
-        const cachedResponse = await cache.match(OFFLINE_URL);
-        return cachedResponse;
       }
     })());
   }
