@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Timestamp QR Generator.">
-  <meta http-equiv="Content-Security-Policy" content="script-src 'self' https://cdnjs.cloudflare.com;">
+  <meta http-equiv="Content-Security-Policy" content="script-src https://cdnjs.cloudflare.com 'sha256-HhsTxTvM61oo9+v44gvSSL0AXzTtaz7R8N8YL0WH0Xw='; worker-src 'self';">
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="white"/>
   <link rel="stylesheet" href="css/style.css">
@@ -16,6 +16,51 @@
   <p id="timestamp-text">This application requires javascript enabled</p>
   </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-  <script type="text/javascript" src="js/script.js"></script>
+  <script>
+    const divInstall = document.getElementById("installContainer");
+    const butInstall = document.getElementById("butInstall");
+
+    function currentTimestamp() {
+        const unixtime = Math.round(new Date().getTime()/1000);
+      return unixtime.toString();
+    }
+
+    const canvas = document.getElementById('qrcode-canvas');
+    const ts_text = document.getElementById('timestamp-text');
+    const default_ts = currentTimestamp();
+    const qr_size = Math.min(document.documentElement.clientHeight / 2, document.documentElement.clientWidth / 2, 500);
+    const qr = new QRious({
+      element: canvas,
+      value: default_ts,
+      size: qr_size,
+      level: 'M',
+      foreground: "#000000",
+      background: "#ffffff"
+    });
+    ts_text.innerHTML = default_ts;
+
+    setInterval(() => {
+      const timestamp = currentTimestamp();
+      qr.set({
+        value: timestamp
+      });
+      ts_text.innerHTML = timestamp;
+    }, 1000);
+
+    /* Only register a service worker if it's supported */
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/service-worker.js");
+    }
+
+    /**
+     * Warn the page must not be served in an iframe.
+     */
+    if (window.self !== window.top) {
+      const requireTopLevel = document.getElementById("requireTopLevel");
+      const link = requireTopLevel.querySelector("a");
+      link.href = window.location.href;
+      requireTopLevel.classList.remove("hidden");
+    }
+  </script>
 </body>
 </html>
