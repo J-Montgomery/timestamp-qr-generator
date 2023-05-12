@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Timestamp QR Generator.">
-  <meta http-equiv="Content-Security-Policy" content="script-src https://cdnjs.cloudflare.com 'sha256-HhsTxTvM61oo9+v44gvSSL0AXzTtaz7R8N8YL0WH0Xw='; worker-src 'self';">
+  <meta http-equiv="Content-Security-Policy" content="script-src https://cdnjs.cloudflare.com 'sha256-CehQSX6C7rilOGaljsdoYzd6Pb+9EqOa86C0rABerk4=' ; worker-src 'self';">
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="white"/>
   <link rel="stylesheet" href="css/style.css">
@@ -40,9 +40,10 @@
     ts_text.innerHTML = default_ts;
 
     setInterval(() => {
+      const cmd_string = "1,f7ab8b25,";
       const timestamp = currentTimestamp();
       qr.set({
-        value: timestamp
+        value: cmd_string + timestamp
       });
       ts_text.innerHTML = timestamp;
     }, 1000);
